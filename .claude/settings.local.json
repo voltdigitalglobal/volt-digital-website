@@ -1,0 +1,8 @@
+{
+  "model": "opus[1m]",
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)"
+    ]
+  }
+}
