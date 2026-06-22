@@ -133,8 +133,8 @@ export default function WhyVolt() {
         </motion.p>
       </div>
 
-      {/* Interactive Diagram Area */}
-      <div className="relative w-full max-w-7xl h-[800px] mx-auto flex items-center justify-center">
+      {/* Interactive Diagram Area - Desktop */}
+      <div className="hidden md:flex relative w-full max-w-7xl h-[800px] mx-auto items-center justify-center">
 
         {/* Connection Lines */}
         {DATA.map((box, index) => (
@@ -166,29 +166,33 @@ export default function WhyVolt() {
           </div>
         ))}
 
-        {/* Center Logo with Spin Intro */}
-        <div className="relative z-30">
-          <motion.div
-            initial={{ scale: 0, opacity: 0, rotate: -1080 }}
-            animate={isInView ? { scale: 1, opacity: 1, rotate: 0 } : { scale: 0, opacity: 0, rotate: -1080 }}
-            transition={{
-              duration: 2.0,
-              ease: "easeInOut",
-              delay: 0.5
-            }}
-            className="relative w-40 h-40 md:w-56 md:h-56"
-          >
-            <div className="absolute inset-0 bg-[#1071FF]/40 rounded-full blur-[40px] animate-pulse" />
-            <Image
-              src={roundLogo}
-              alt="VD Logo"
-              fill
-              className="object-contain relative z-10"
-              priority
-            />
-          </motion.div>
-        </div>
+      </div>
 
+      {/* Mobile Layout */}
+      <div className="flex md:hidden flex-col items-center gap-6 relative w-full z-30 pb-12 mt-8">
+        {DATA.map((box, index) => (
+          <motion.div
+            key={`mobile-${box.id}`}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.2 }}
+            transition={{ delay: index * 0.15, duration: 0.5 }}
+            className="w-full max-w-[340px] p-6 rounded-[32px] border border-white/10 bg-white/[0.03] backdrop-blur-[40px] shadow-xl relative"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#1071FF] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-[#1071FF]"></span>
+              </span>
+              <h3 className="text-xl font-bold text-[#1071FF]">
+                {box.title}
+              </h3>
+            </div>
+            <p className="text-white/80 text-sm leading-relaxed font-normal">
+              {box.description}
+            </p>
+          </motion.div>
+        ))}
       </div>
     </section>
   );

@@ -8,17 +8,7 @@ import logo from "@/image/logo.svg";
 const QUICK_LINKS = [
   { name: "Home", href: "/" },
   { name: "Services", href: "/services" },
-  { name: "Methodology", href: "/#methodology" },
-  { name: "Why Volt", href: "/#whyvolt" },
-  { name: "Blog", href: "/#blog" },
-  { name: "Contact", href: "/#contact" },
-];
-
-const SERVICES = [
-  "Digital Marketing",
-  "Performance Marketing",
-  "Digital Transformation",
-  "Business Consulting",
+  { name: "Blog", href: "/blog" },
 ];
 
 export default function Footer() {
@@ -28,7 +18,7 @@ export default function Footer() {
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-16">
           
           {/* Brand Column */}
           <div className="flex flex-col gap-6">
@@ -76,18 +66,6 @@ export default function Footer() {
                   <Link href={link.href} className="text-white/60 hover:text-[#1071FF] transition-colors text-lg">
                     {link.name}
                   </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Services */}
-          <div className="flex flex-col gap-6">
-            <h4 className="text-white text-xl font-bold">Services</h4>
-            <ul className="flex flex-col gap-4">
-              {SERVICES.map((service) => (
-                <li key={service} className="text-white/60 hover:text-[#1071FF] transition-colors text-lg cursor-pointer">
-                  {service}
                 </li>
               ))}
             </ul>

@@ -20,9 +20,16 @@ export default function Navbar({ variant = "default" }: { variant?: "default" | 
   // Handle scroll-based navbar transformation
   useEffect(() => {
     const handleScroll = () => {
-      const isScrolled = window.scrollY > 100;
+      const isMobile = window.innerWidth < 768;
+      const isScrolled = window.scrollY > 100 && !isMobile;
+      
       if (isScrolled !== scrolled) {
         setScrolled(isScrolled);
+      }
+
+      if (isMobile) {
+        gsap.to(".nav-bar", { width: "100%", duration: 0.3, ease: "power3.out" });
+      } else {
         gsap.to(".nav-bar", {
           width: isScrolled ? "60%" : "80%",
           duration: 0.6,
@@ -32,6 +39,9 @@ export default function Navbar({ variant = "default" }: { variant?: "default" | 
     };
 
     window.addEventListener("scroll", handleScroll);
+    // Initial check
+    handleScroll();
+    
     return () => window.removeEventListener("scroll", handleScroll);
   }, [scrolled]);
 
