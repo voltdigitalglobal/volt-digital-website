@@ -1,107 +1,226 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Search, BookOpen, ArrowRight } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-// We'll use this placeholder image for the hero
+// Fallback image
 import heroImg from "@/image/recent_news_card1_image.png";
 
-const RECENT_BLOGS = [
-  "For SMEs getting serious about digital",
-  "For SMEs getting serious about digital",
-  "For SMEs getting serious about digital"
-];
+interface Blog {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  content: string;
+  image_url: string;
+  author: string;
+  created_at: string;
+  published_at: string;
+}
 
-export default function BlogArticlePage() {
+export default function BlogListPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialSearchQuery = searchParams ? searchParams.get('search') || "" : "";
+
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [recentBlogs, setRecentBlogs] = useState<Blog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
+
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      setLoading(true);
+      try {
+        let query = supabase.from("blogs").select("*").eq("is_active", true).order("published_at", { ascending: false });
+        
+        if (initialSearchQuery) {
+          query = query.ilike('title', `%${initialSearchQuery}%`);
+        }
+
+        const { data: allBlogs, error: allBlogsError } = await query;
+        if (allBlogsError) throw allBlogsError;
+        setBlogs(allBlogs || []);
+
+        const { data: recData, error: recError } = await supabase
+          .from("blogs")
+          .select("*")
+          .eq("is_active", true)
+          .order("published_at", { ascending: false })
+          .limit(4);
+
+        if (recError) throw recError;
+        setRecentBlogs(recData || []);
+      } catch (err) {
+        console.error("Error fetching blogs:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBlogs();
+  }, [initialSearchQuery]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/blog?search=${encodeURIComponent(searchQuery)}`);
+    } else {
+      router.push(`/blog`);
+    }
+  };
+
   return (
-    <main className="relative min-h-screen bg-white overflow-x-hidden pt-32 text-black">
-      <Navbar />
-      {/* Header Section */}
-      <div className="max-w-5xl mx-auto px-6 text-center flex flex-col gap-4 mb-12">
-        <p className="font-bold text-lg text-black">Published: 24/04/2026</p>
-        <h1 className="text-4xl md:text-6xl font-light text-[#1071FF] tracking-tight leading-tight">
-          For SMEs getting serious about digital
-        </h1>
-      </div>
+    <main className="relative min-h-screen bg-[#F8FAFC] overflow-x-hidden pt-32 text-black font-sans flex flex-col justify-between">
+      <div>
+        <Navbar />
 
-      {/* Main Container */}
-      <div className="max-w-[1400px] mx-auto px-6 mb-32">
-        {/* Hero Image */}
-        <div className="relative w-full aspect-[21/9] md:aspect-[2.5/1] rounded-[32px] border-[12px] border-[#1071FF] overflow-hidden z-0">
-          <Image 
-            src={heroImg} 
-            alt="Blog Hero Image" 
-            fill 
-            className="object-cover"
-            priority
-          />
+        {/* Header Section */}
+        <div className="max-w-5xl mx-auto px-6 text-center flex flex-col gap-4 mb-16">
+          <p className="font-bold text-lg text-[#1071FF] tracking-wide uppercase">Our Blog</p>
+          <h1 className="text-4xl md:text-6xl font-light text-black tracking-tight leading-tight">
+            Latest News & <span className="text-[#1071FF] font-semibold">Updates</span>
+          </h1>
         </div>
 
-        {/* Content Layout */}
-        <div className="relative z-10 flex flex-col lg:flex-row justify-between -mt-12 md:-mt-24 xl:-mt-32 lg:px-4">
+        {/* Main Container */}
+        <div className="max-w-[1400px] mx-auto px-6 mb-32 flex flex-col lg:flex-row gap-12 lg:gap-16">
           
-          {/* Left Sidebar (Social Icons) */}
-          <div className="hidden lg:flex flex-col gap-6 w-[80px] shrink-0 pt-16 md:pt-32 xl:pt-40 items-center">
-            <SocialIcon type="linkedin" />
-            <SocialIcon type="twitter" />
-            <SocialIcon type="pinterest" />
-            <SocialIcon type="whatsapp" />
-            <SocialIcon type="facebook" />
-          </div>
-
-          {/* Main Article Content */}
-          <div className="flex-1 bg-white p-6 md:p-10 lg:p-12 xl:p-16 max-w-4xl mx-auto lg:mx-0 w-full mt-8 lg:mt-0 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] lg:shadow-none">
-            <div className="prose prose-lg max-w-none text-black/80 font-light leading-relaxed">
-              <p className="mb-6">
-                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry&apos;s standard dummy text ever since the 1500s. when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-              </p>
-
-              <h2 className="text-3xl font-bold text-black mt-12 mb-4">Why do we use it?</h2>
-              <p className="mb-6">
-                It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using &apos;Content here, content here&apos;, making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for &apos;lorem ipsum&apos; will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).
-              </p>
-
-              <h2 className="text-3xl font-bold text-black mt-12 mb-4">Where does it come from?</h2>
-              <p className="mb-6">
-                Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.
-              </p>
-            </div>
-          </div>
-
-          {/* Right Sidebar */}
-          <div className="w-full lg:w-[320px] xl:w-[360px] shrink-0 pt-12 lg:pt-32 xl:pt-40 flex flex-col gap-12">
-            
-            {/* Search Bar */}
-            <div className="relative w-full">
-              <input 
-                type="text" 
-                placeholder="Search" 
-                className="w-full bg-[#F3F4F6] text-black rounded-full py-4 pl-6 pr-12 outline-none placeholder:text-gray-500 focus:ring-2 focus:ring-[#1071FF]/50 transition-all"
-              />
-              <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-[#1071FF] w-5 h-5" />
-            </div>
-
-            {/* Recent Blogs */}
-            <div className="flex flex-col gap-6">
-              <h3 className="text-2xl font-bold text-black">Recent Blogs</h3>
-              <div className="flex flex-col gap-4">
-                {RECENT_BLOGS.map((blog, idx) => (
-                  <Link 
-                    href="#" 
-                    key={idx}
-                    className="block bg-[#F3F4F6] hover:bg-gray-200 transition-colors rounded-[20px] p-6"
-                  >
-                    <p className="text-[#1071FF] font-medium text-lg leading-snug">
-                      {blog}
-                    </p>
+          {/* Left Content (Blog Cards) */}
+          <div className="flex-1">
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="bg-white rounded-[24px] overflow-hidden shadow-sm border border-gray-100 animate-pulse">
+                    <div className="w-full aspect-[4/3] bg-gray-200" />
+                    <div className="p-6 space-y-4">
+                      <div className="h-4 bg-gray-200 rounded w-1/3" />
+                      <div className="h-6 bg-gray-200 rounded w-3/4" />
+                      <div className="h-4 bg-gray-200 rounded w-full" />
+                      <div className="h-4 bg-gray-200 rounded w-5/6" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : blogs.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                {blogs.map((blog) => (
+                  <Link href={`/blog/${blog.slug}`} key={blog.id} className="group flex flex-col bg-white rounded-[24px] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100/50 hover:border-[#1071FF]/20">
+                    <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
+                      <Image 
+                        src={blog.image_url || heroImg.src} 
+                        alt={blog.title} 
+                        fill 
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="p-8 flex flex-col flex-1">
+                      <p className="text-sm text-gray-500 font-medium mb-3">
+                        {new Date(blog.published_at).toLocaleDateString("en-GB")}
+                      </p>
+                      <h3 className="text-2xl font-bold text-black mb-4 group-hover:text-[#1071FF] transition-colors line-clamp-2">
+                        {blog.title}
+                      </h3>
+                      <p className="text-gray-600 mb-8 line-clamp-3 font-light leading-relaxed flex-1">
+                        {blog.description}
+                      </p>
+                      <div className="flex items-center text-[#1071FF] font-semibold mt-auto group-hover:gap-2 transition-all">
+                        Read Article <ArrowRight className="w-5 h-5 ml-1" />
+                      </div>
+                    </div>
                   </Link>
                 ))}
               </div>
+            ) : (
+               <div className="bg-white rounded-[32px] p-16 text-center shadow-sm border border-gray-100">
+                <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-6" />
+                <h2 className="text-2xl font-bold text-black mb-2">No blogs found</h2>
+                <p className="text-gray-500">
+                  {initialSearchQuery ? `We couldn't find any articles matching "${initialSearchQuery}".` : "Check back later for new updates from our team!"}
+                </p>
+                {initialSearchQuery && (
+                  <button 
+                    onClick={() => {
+                      setSearchQuery("");
+                      router.push('/blog');
+                    }}
+                    className="mt-6 px-6 py-2 bg-gray-100 hover:bg-gray-200 text-black rounded-full font-medium transition-colors"
+                  >
+                    Clear Search
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Right Sidebar */}
+          <div className="w-full lg:w-[320px] xl:w-[360px] shrink-0 flex flex-col gap-10">
+            
+            {/* Search Bar */}
+            <div className="bg-white p-6 rounded-[24px] shadow-sm border border-gray-100">
+              <h3 className="text-xl font-bold text-black mb-4">Search</h3>
+              <form onSubmit={handleSearchSubmit} className="relative w-full">
+                <input 
+                  type="text" 
+                  placeholder="Search articles..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-[#F8FAFC] text-black rounded-[16px] py-4 pl-5 pr-12 outline-none border border-gray-200 focus:border-[#1071FF] focus:ring-1 focus:ring-[#1071FF] transition-all"
+                />
+                <button type="submit" aria-label="Search" className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-100 rounded-full transition-colors">
+                  <Search className="text-[#1071FF] w-5 h-5" />
+                </button>
+              </form>
             </div>
 
+            {/* Recent Blogs */}
+            <div className="bg-white p-6 rounded-[24px] shadow-sm border border-gray-100">
+              <h3 className="text-xl font-bold text-black mb-6">Recent Posts</h3>
+              <div className="flex flex-col gap-5">
+                {recentBlogs.length > 0
+                  ? recentBlogs.map((recBlog) => (
+                      <Link 
+                        href={`/blog/${recBlog.slug}`} 
+                        key={recBlog.id}
+                        className="group flex gap-4 items-center p-3 -mx-3 rounded-[16px] hover:bg-[#F8FAFC] transition-colors"
+                      >
+                        <div className="relative w-20 h-20 shrink-0 rounded-[12px] overflow-hidden bg-gray-100">
+                           <Image 
+                            src={recBlog.image_url || heroImg.src} 
+                            alt={recBlog.title} 
+                            fill 
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-gray-500 font-medium mb-1">
+                            {new Date(recBlog.published_at).toLocaleDateString("en-GB")}
+                          </p>
+                          <p className="text-black font-semibold text-sm leading-snug group-hover:text-[#1071FF] transition-colors line-clamp-2">
+                            {recBlog.title}
+                          </p>
+                        </div>
+                      </Link>
+                    ))
+                  : [1, 2, 3].map((i) => (
+                      <div key={i} className="flex gap-4 items-center animate-pulse">
+                        <div className="w-20 h-20 shrink-0 rounded-[12px] bg-gray-200" />
+                        <div className="flex-1 space-y-2">
+                           <div className="h-3 bg-gray-200 rounded w-1/2" />
+                           <div className="h-4 bg-gray-200 rounded w-full" />
+                           <div className="h-4 bg-gray-200 rounded w-3/4" />
+                        </div>
+                      </div>
+                    ))}
+              </div>
+            </div>
+            
           </div>
         </div>
       </div>
@@ -109,45 +228,4 @@ export default function BlogArticlePage() {
       <Footer />
     </main>
   );
-}
-
-// Simple social icon SVG wrappers
-function SocialIcon({ type }: { type: string }) {
-  const commonClasses = "w-8 h-8 text-black hover:text-[#1071FF] transition-colors cursor-pointer";
-  
-  switch (type) {
-    case 'linkedin':
-      return (
-        <svg className={commonClasses} viewBox="0 0 24 24" fill="currentColor">
-          <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-        </svg>
-      );
-    case 'twitter':
-      // X logo
-      return (
-        <svg className={commonClasses} viewBox="0 0 24 24" fill="currentColor">
-          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.008 4.076H5.078z"/>
-        </svg>
-      );
-    case 'pinterest':
-      return (
-        <svg className={commonClasses} viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 0c-6.627 0-12 5.372-12 12 0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.969-2.915 2.176-2.915 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.923 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146 1.124.347 2.317.535 3.55.535 6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/>
-        </svg>
-      );
-    case 'whatsapp':
-      return (
-        <svg className={commonClasses} viewBox="0 0 24 24" fill="currentColor">
-          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.347-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.876 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
-        </svg>
-      );
-    case 'facebook':
-      return (
-        <svg className={commonClasses} viewBox="0 0 24 24" fill="currentColor">
-          <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/>
-        </svg>
-      );
-    default:
-      return null;
-  }
 }
