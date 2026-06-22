@@ -79,7 +79,7 @@ export default function BlogListPage() {
   return (
     <main className="relative min-h-screen bg-[#F8FAFC] overflow-x-hidden pt-32 text-black font-sans flex flex-col justify-between">
       <div>
-        <Navbar />
+        <Navbar variant="blog" />
 
         {/* Header Section */}
         <div className="max-w-5xl mx-auto px-6 text-center flex flex-col gap-4 mb-16">

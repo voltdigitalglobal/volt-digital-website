@@ -101,7 +101,7 @@ export default function BlogArticlePage() {
   if (notFound) {
     return (
       <main className="relative min-h-screen bg-white text-black pt-32 flex flex-col justify-between">
-        <Navbar />
+        <Navbar variant="blog" />
         <div className="max-w-md mx-auto text-center py-20 px-6">
           <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-6" />
           <h1 className="text-3xl font-bold mb-4">Article Not Found</h1>
@@ -132,7 +132,7 @@ export default function BlogArticlePage() {
 
   return (
     <main className="relative min-h-screen bg-white overflow-x-hidden pt-32 text-black">
-      <Navbar />
+      <Navbar variant="blog" />
 
       {/* Header Section */}
       <div className="max-w-5xl mx-auto px-6 text-center flex flex-col gap-4 mb-12">

@@ -10,7 +10,7 @@ import icon1 from "@/image/icon1.png";
 
 const NAV_ITEMS = ["HOME", "SERVICES", "BLOG", "ABOUT"];
 
-export default function Navbar() {
+export default function Navbar({ variant = "default" }: { variant?: "default" | "blog" }) {
   const menuRef = useRef<HTMLDivElement>(null);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
   const menuTlRef = useRef<gsap.core.Timeline | null>(null);
@@ -107,28 +107,47 @@ export default function Navbar() {
   return (
     <>
       {/* ── Navigation ── */}
-      <nav className="nav-bar">
-        <div className="nav-inner">
-          <div className="nav-logo relative h-[36px] w-[180px]">
-            <div
-              className={`absolute inset-0 transition-all duration-700 ease-in-out ${
-                scrolled ? "opacity-0 scale-75 blur-sm" : "opacity-100 scale-100 blur-0"
-              }`}
-            >
-              <Image src={logo} alt="Volt Digital" width={180} height={36} priority className="h-full w-auto" />
+      <nav className={`nav-bar ${variant === "blog" ? "bg-white/80 shadow-sm !w-[90%] md:!w-[80%] max-w-6xl mx-auto rounded-full mt-4" : ""}`}>
+        <div className={`nav-inner ${variant === "blog" ? "px-8 py-4 flex items-center justify-between w-full" : ""}`}>
+          
+          {variant === "blog" ? (
+            <Link href="/" className="text-[#1071FF] font-bold text-2xl tracking-tight z-50 relative">
+              Volt Digital
+            </Link>
+          ) : (
+            <div className="nav-logo relative h-[36px] w-[180px]">
+              <div
+                className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+                  scrolled ? "opacity-0 scale-75 blur-sm" : "opacity-100 scale-100 blur-0"
+                }`}
+              >
+                <Image src={logo} alt="Volt Digital" width={180} height={36} priority className="h-full w-auto" />
+              </div>
+              <div
+                className={`absolute inset-0 transition-all duration-700 ease-in-out flex items-center ${
+                  scrolled ? "opacity-100 scale-100 blur-0" : "opacity-0 scale-125 blur-sm"
+                }`}
+              >
+                <Image src={icon1} alt="Volt Icon" width={36} height={36} priority className="h-full w-auto" />
+              </div>
             </div>
-            <div
-              className={`absolute inset-0 transition-all duration-700 ease-in-out flex items-center ${
-                scrolled ? "opacity-100 scale-100 blur-0" : "opacity-0 scale-125 blur-sm"
-              }`}
-            >
-              <Image src={icon1} alt="Volt Icon" width={36} height={36} priority className="h-full w-auto" />
-            </div>
-          </div>
-          <button ref={hamburgerRef} className="nav-hamburger" aria-label="Open menu" onClick={openMenu}>
-            <span className="hamburger-line" />
-            <span className="hamburger-line" />
-            <span className="hamburger-line" />
+          )}
+
+          <button 
+            ref={hamburgerRef} 
+            className={variant === "blog" ? "font-bold text-black tracking-widest uppercase text-sm z-50 relative hover:text-[#1071FF] transition-colors" : "nav-hamburger"} 
+            aria-label="Open menu" 
+            onClick={openMenu}
+          >
+            {variant === "blog" ? (
+              "MENU"
+            ) : (
+              <>
+                <span className="hamburger-line" />
+                <span className="hamburger-line" />
+                <span className="hamburger-line" />
+              </>
+            )}
           </button>
         </div>
       </nav>
