@@ -494,13 +494,13 @@ body {
 
 @media (max-width: 768px) {
   .nav-bar {
-    width: 100% !important;
+    width: calc(100% - 20px) !important;
     top: 10px !important;
   }
 
   .nav-inner {
     padding: 12px 20px;
-    border-radius: 0;
+    border-radius: 12px;
   }
 
   .nav-logo img {
