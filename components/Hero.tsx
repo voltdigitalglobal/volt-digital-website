@@ -1,30 +1,34 @@
 "use client";
-// Updated fix for TS safety in GSAP animations
 
 import Image from "next/image";
 import Link from "next/link";
 import { useLayoutEffect, useRef, useCallback, useState, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ArrowRight } from "lucide-react";
 
-import bgImage from "@/image/bg.png";
-import star from "@/image/star.png";
-import doubleStar from "@/image/double_star.png";
-import spiral from "@/image/spiral.png";
-import logo from "@/image/logo.svg";
+import logo from "@/image/logo_black.png";
 import icon1 from "@/image/icon1.png";
+import digitalMarketing from "@/image/digital marketing.png";
+import performanceMarketing from "@/image/digital marketing-1.png";
+import digitalTransformation from "@/image/digital transformation.png";
+import businessConsulting from "@/image/business consulting.png";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-
 const NAV_ITEMS = ["HOME", "SERVICES", "BLOG", "ABOUT"];
+
+const CARDS = [
+  { id: 1, title: "Digital Marketing", image: digitalMarketing },
+  { id: 2, title: "Performance Marketing", image: performanceMarketing },
+  { id: 3, title: "Digital Transformation", image: digitalTransformation },
+  { id: 4, title: "Business Consulting", image: businessConsulting },
+];
 
 export default function Hero() {
   const root = useRef<HTMLDivElement>(null);
-  const cursorRef = useRef<HTMLDivElement>(null);
-  const patternRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
   const menuTlRef = useRef<gsap.core.Timeline | null>(null);
@@ -54,7 +58,6 @@ export default function Hero() {
   /* ── Menu open/close with GSAP ── */
   const openMenu = useCallback(() => {
     setMenuOpen(true);
-    // Small delay to let React render the menu DOM
     requestAnimationFrame(() => {
       if (!menuRef.current || !hamburgerRef.current) return;
       const hamburgerRect = hamburgerRef.current.getBoundingClientRect();
@@ -64,7 +67,6 @@ export default function Hero() {
       const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
       menuTlRef.current = tl;
 
-      // Overlay slides in
       tl.fromTo(
         menuRef.current,
         { clipPath: `circle(0% at ${clipOrigin})` },
@@ -72,7 +74,6 @@ export default function Hero() {
         0
       );
 
-      // Close button spins in
       tl.fromTo(
         ".menu-close",
         { rotation: -180, scale: 0, opacity: 0 },
@@ -80,7 +81,6 @@ export default function Hero() {
         0.3
       );
 
-      // Menu items stagger from below
       tl.fromTo(
         ".menu-item",
         { yPercent: 100, opacity: 0 },
@@ -88,7 +88,6 @@ export default function Hero() {
         0.35
       );
 
-      // Line separators fade in
       tl.fromTo(
         ".menu-line",
         { scaleX: 0, transformOrigin: "left" },
@@ -110,7 +109,6 @@ export default function Hero() {
       onComplete: () => setMenuOpen(false),
     });
 
-    // Menu items stagger out upward
     tl.to(".menu-item", {
       yPercent: -80,
       opacity: 0,
@@ -118,7 +116,6 @@ export default function Hero() {
       stagger: 0.05,
     }, 0);
 
-    // Lines scale out
     tl.to(".menu-line", {
       scaleX: 0,
       duration: 0.3,
@@ -126,7 +123,6 @@ export default function Hero() {
       transformOrigin: "right",
     }, 0);
 
-    // Close button spins out
     tl.to(".menu-close", {
       rotation: 180,
       scale: 0,
@@ -134,7 +130,6 @@ export default function Hero() {
       duration: 0.35,
     }, 0.1);
 
-    // Overlay closes with circle wipe
     tl.to(menuRef.current, {
       clipPath: `circle(0% at ${clipOrigin})`,
       duration: 0.7,
@@ -142,160 +137,39 @@ export default function Hero() {
     }, 0.25);
   }, []);
 
-  /* ── Custom circle cursor logic ── */
-  const lastMousePos = useRef({ x: 0, y: 0 });
-
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    lastMousePos.current = { x: e.clientX, y: e.clientY };
-    if (!cursorRef.current) return;
-    gsap.to(cursorRef.current, {
-      x: e.clientX,
-      y: e.clientY,
-      duration: 0.15,
-      ease: "power2.out",
-    });
-  }, []);
-
-  const handleHeadingEnter = useCallback(() => {
-    if (!cursorRef.current) return;
-    gsap.to(cursorRef.current, {
-      scale: 1,
-      opacity: 1,
-      duration: 0.3,
-      ease: "back.out(1.7)",
-    });
-  }, []);
-
-  const handleHeadingLeave = useCallback(() => {
-    if (!cursorRef.current) return;
-    gsap.to(cursorRef.current, {
-      scale: 0,
-      opacity: 0,
-      duration: 0.25,
-      ease: "power2.in",
-    });
-  }, []);
-
-  // Automatically hide cursor on scroll if heading leaves the mouse area
-  useEffect(() => {
-    const handleScroll = () => {
-      // Use document.elementFromPoint to see what's under the mouse at its last known position
-      const el = document.elementFromPoint(lastMousePos.current.x, lastMousePos.current.y);
-      const isOverHeading = el?.closest(".hero-heading");
-      // Failsafe: if we've scrolled past the hero section (e.g. 800px), definitely hide it
-      const isOutOfHeroRange = window.scrollY > 800;
-
-      if (!isOverHeading || isOutOfHeroRange) {
-        handleHeadingLeave();
-      }
-    };
-
-    // Check more frequently during scroll for responsiveness
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [handleHeadingLeave]);
-
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
       /* ── initial hidden states ── */
       gsap.set(".nav-bar", { y: -80, opacity: 0 });
-      gsap.set(".hero-line", { yPercent: 120, opacity: 0 });
-      gsap.set(".hero-cta", { y: 40, opacity: 0 });
-      gsap.set(".hero-shape", { opacity: 0, scale: 0.5 });
-      gsap.set(".hero-bg", { opacity: 0 });
-      gsap.set(".hero-pill", { scaleX: 0, transformOrigin: "left center" });
-      gsap.set(".custom-cursor", { scale: 0, opacity: 0 });
+      gsap.set(".hero-line", { y: 30, opacity: 0 });
+      gsap.set(".hero-cta-btn", { scale: 0.8, opacity: 0 });
+      gsap.set(".hero-card", { y: 50, opacity: 0 });
 
       /* ── master timeline ── */
-      const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-      tl.to(".hero-bg", { opacity: 1, duration: 1.4 }, 0);
       tl.to(".nav-bar", { y: 0, opacity: 1, duration: 1, ease: "power3.out" }, 0.2);
-      tl.to(".hero-shape", {
-        opacity: 1, scale: 1, duration: 1.6,
-        ease: "elastic.out(1, 0.6)", stagger: 0.12,
-      }, 0.3);
       tl.to(".hero-line", {
-        yPercent: 0, opacity: 1, duration: 1,
-        stagger: 0.1, ease: "power3.out",
-      }, 0.5);
-      tl.to(".hero-pill", { scaleX: 1, duration: 0.7, ease: "back.out(1.7)" }, 0.9);
-      tl.to(".hero-cta", { y: 0, opacity: 1, duration: 0.9, ease: "power3.out" }, 1.2);
+        y: 0, opacity: 1, duration: 1,
+        stagger: 0.15,
+      }, 0.4);
+      tl.to(".hero-cta-btn", { scale: 1, opacity: 1, duration: 0.6, ease: "back.out(1.5)" }, 0.8);
+      tl.to(".hero-card", {
+        y: 0, opacity: 1, duration: 0.8,
+        stagger: 0.15,
+      }, 1.0);
 
-      /* ── infinite floating ── */
-      gsap.to(".shape-spiral", { y: -18, rotation: 8, duration: 5, repeat: -1, yoyo: true, ease: "sine.inOut" });
-      gsap.to(".shape-star", { y: 16, rotation: -6, duration: 6, repeat: -1, yoyo: true, ease: "sine.inOut" });
-      gsap.to(".shape-double", { y: -12, rotation: 5, duration: 5.5, repeat: -1, yoyo: true, ease: "sine.inOut" });
-
-      /* ── CTA hover ── */
-      const btn = root.current?.querySelector(".cta-btn");
-      btn?.addEventListener("mouseenter", () => {
-        gsap.to(".cta-arrow", { x: 6, duration: 0.35, ease: "power2.out" });
-        gsap.to(".cta-btn", { scale: 1.04, duration: 0.35, ease: "power2.out" });
-      });
-      btn?.addEventListener("mouseleave", () => {
-        gsap.to(".cta-arrow", { x: 0, duration: 0.35, ease: "power2.out" });
-        gsap.to(".cta-btn", { scale: 1, duration: 0.35, ease: "power2.out" });
-      });
-
-      /* ── Pill hover ── */
-      const pill = root.current?.querySelector(".hero-pill");
-      pill?.addEventListener("mouseenter", () => {
-        handleHeadingLeave();
-      });
-      pill?.addEventListener("mouseleave", () => {
-        handleHeadingEnter();
-      });
-
-      /* ── Mouse move: parallax + interactive pattern ── */
-      const onMove = (e: MouseEvent) => {
-        const { innerWidth: w, innerHeight: h } = window;
-        const x = (e.clientX / w - 0.5) * 2;
-        const y = (e.clientY / h - 0.5) * 2;
-        gsap.to(".shape-spiral", { x: x * 20, y: y * 16, duration: 0.8, ease: "power2.out" });
-        gsap.to(".shape-star", { x: x * -24, y: y * 20, duration: 0.9, ease: "power2.out" });
-        gsap.to(".shape-double", { x: x * 16, y: y * -12, duration: 0.9, ease: "power2.out" });
-        if (patternRef.current) {
-          gsap.to(patternRef.current, { x: x * -30, y: y * -25, duration: 1.2, ease: "power2.out" });
-        }
-      };
-      window.addEventListener("mousemove", onMove);
-      window.addEventListener("mousemove", handleMouseMove);
-
-      const heading = root.current?.querySelector(".hero-heading");
-      heading?.addEventListener("mouseenter", handleHeadingEnter as EventListener);
-      heading?.addEventListener("mouseleave", handleHeadingLeave as EventListener);
-
-      return () => {
-        window.removeEventListener("mousemove", onMove);
-        window.removeEventListener("mousemove", handleMouseMove as EventListener);
-        heading?.removeEventListener("mouseenter", handleHeadingEnter as EventListener);
-        heading?.removeEventListener("mouseleave", handleHeadingLeave as EventListener);
-      };
     }, root);
 
     return () => ctx.revert();
-  }, [handleMouseMove, handleHeadingEnter, handleHeadingLeave]);
+  }, []);
 
   return (
-    <section ref={root} className="hero-section">
-      {/* ── Custom circle cursor ── */}
-      <div ref={cursorRef} className="custom-cursor" />
-
-      {/* ── Background layers ── */}
-      <div className="hero-bg hero-bg-layer overflow-hidden">
-        <div ref={patternRef} className="pattern-wrapper">
-          <Image src={bgImage} alt="" fill sizes="120vw" className="hero-pattern-img" style={{ opacity: 1, mixBlendMode: 'normal' }} priority />
-        </div>
-
-
-        <div className="hero-radial-glow" />
-        <div className="hero-vignette" />
-      </div>
+    <section ref={root} className="relative min-h-screen bg-white flex flex-col pt-6 pb-12 px-4 md:px-8 overflow-hidden font-sans">
 
       {/* ── Navigation ── */}
       <nav className="nav-bar">
-        <div className="nav-inner">
+        <div className="nav-inner transition-colors duration-500 !bg-transparent !bg-none !border-transparent" style={{ border: 'none' }}>
           <div className="nav-logo relative h-[36px] w-[180px]">
             <div className={`absolute inset-0 transition-all duration-700 ease-in-out ${scrolled ? 'opacity-0 scale-75 blur-sm' : 'opacity-100 scale-100 blur-0'}`}>
               <Image src={logo} alt="Volt Digital" width={180} height={36} priority className="h-full w-auto" />
@@ -305,9 +179,9 @@ export default function Hero() {
             </div>
           </div>
           <button ref={hamburgerRef} className="nav-hamburger" aria-label="Open menu" onClick={openMenu}>
-            <span className="hamburger-line" />
-            <span className="hamburger-line" />
-            <span className="hamburger-line" />
+            <span className="hamburger-line !bg-[#1071FF]" />
+            <span className="hamburger-line !bg-[#1071FF]" />
+            <span className="hamburger-line !bg-[#1071FF]" />
           </button>
         </div>
       </nav>
@@ -342,51 +216,76 @@ export default function Hero() {
         </div>
       )}
 
-      {/* ── 3D Shapes ── */}
-      <div className="hero-shape shape-spiral">
-        <Image src={spiral} alt="" priority width={220} height={220} className="shape-img" />
-      </div>
-      <div className="hero-shape shape-star">
-        <Image src={star} alt="" priority width={240} height={240} className="shape-img" />
-      </div>
-      <div className="hero-shape shape-double">
-        <Image src={doubleStar} alt="" priority width={160} height={160} className="shape-img" />
-      </div>
-
-      {/* ── Main content ── */}
-      <div className="hero-content">
-        <h1 className="hero-heading">
-          <span className="hero-line-wrapper">
-            <span className="hero-line">
-              <span className="text-white-grad">Built to </span>
-              <span className="text-italic-script text-white-pure">Grow </span>
-              <span className="text-white-grad">Your</span>
-            </span>
-          </span>
-
-          <span className="hero-line-wrapper">
-            <span className="hero-line">
-              <span className="text-white-grad">Business </span>
-              <span className="text-white-grad"> from</span>
-            </span>
-          </span>
-
-          <span className="hero-line-wrapper">
-            <span className="hero-line">
-              <span className="text-white-grad">Marketing to </span>
-              <span className="text-italic-script text-systems">Systems</span>
-            </span>
-          </span>
+      {/* ── Main Content ── */}
+      <div className="flex-1 flex flex-col items-center justify-center text-center mt-[40px] md:mt-24 max-w-5xl mx-auto w-full z-10">
+        <h1 className="text-4xl md:text-6xl lg:text-7xl font-normal leading-[1.2] md:leading-[1.3] tracking-tight">
+          <div className="overflow-hidden pb-[0.25em] -mb-[0.25em]"><div className="hero-line text-black">We create striking</div></div>
+          <div className="overflow-hidden pb-[0.25em] -mb-[0.25em]"><div className="hero-line text-black">concepts and branding</div></div>
+          <div className="overflow-hidden pb-[0.25em] -mb-[0.25em]"><div className="hero-line text-gray-400">that help your business</div></div>
+          <div className="overflow-hidden pb-[0.25em] -mb-[0.25em]"><div className="hero-line text-gray-400">grow fast</div></div>
         </h1>
 
-        <div className="hero-cta">
-          <button type="button" className="cta-btn">
-            <span className="cta-flash" />
-            Book Growth Audit
-            <span className="cta-arrow">→</span>
-          </button>
+        <div className="mt-12 md:mt-16">
+          <Link href="#contact" className="hero-cta-btn inline-flex bg-[#1071FF] text-white px-8 py-4 rounded-full text-lg font-semibold items-center gap-3 hover:bg-[#0d62df] hover:scale-105 active:scale-95 transition-all shadow-[0_8px_20px_rgba(16,113,255,0.3)]">
+            Book Growth Audit <ArrowRight className="w-5 h-5" />
+          </Link>
         </div>
       </div>
+
+      {/* ── Cards Section ── */}
+      {/* Mobile: horizontal scroll; Desktop: 4-col grid */}
+      <div className="w-full mt-20 z-10">
+        {/* Mobile scroll wrapper */}
+        <div className="flex gap-4 overflow-x-auto no-scrollbar px-4 pb-4 md:hidden">
+          {CARDS.map((card) => (
+            <div
+              key={card.id}
+              className="hero-card group relative flex-shrink-0 w-[260px] h-[220px] bg-[#E5E5E5] rounded-[32px] overflow-hidden flex flex-col justify-end p-6 cursor-pointer transition-[height] duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] hover:h-[320px]"
+            >
+              <div className="absolute inset-0 z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out">
+                <Image src={card.image} alt={card.title} fill className="object-cover" sizes="260px" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              </div>
+              <div className="relative z-10 flex flex-col">
+                <h3 className="text-black group-hover:text-white text-xl group-hover:text-[25px] font-semibold transition-all duration-500 ease-in-out leading-tight w-3/4">
+                  {card.title}
+                </h3>
+                <div className="overflow-hidden mt-4 h-0 group-hover:h-auto group-hover:overflow-visible">
+                  <Link href="#contact" className="inline-block bg-white text-black text-sm font-bold px-5 py-2 rounded-full opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] delay-100">
+                    Get start
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop grid */}
+        <div className="hidden md:grid max-w-7xl mx-auto grid-cols-2 lg:grid-cols-4 gap-6 items-start px-4">
+          {CARDS.map((card) => (
+            <div
+              key={card.id}
+              className="hero-card group relative w-full h-[220px] bg-[#E5E5E5] rounded-[32px] overflow-hidden flex flex-col justify-end p-6 cursor-pointer transition-[height] duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] hover:h-[320px]"
+            >
+              <div className="absolute inset-0 z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out">
+                <Image src={card.image} alt={card.title} fill className="object-cover" sizes="(max-width: 1024px) 50vw, 25vw" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              </div>
+              <div className="relative z-10 flex flex-col">
+                <h3 className="text-black group-hover:text-white text-xl md:text-2xl group-hover:text-[25px] md:group-hover:text-[29px] font-semibold transition-all duration-500 ease-in-out leading-tight w-3/4">
+                  {card.title}
+                </h3>
+                <div className="overflow-hidden mt-4 h-0 group-hover:h-auto group-hover:overflow-visible">
+                  <Link href="#contact" className="inline-block bg-white text-black text-sm font-bold px-5 py-2 rounded-full opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] delay-100">
+                    Get start
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
     </section>
   );
 }

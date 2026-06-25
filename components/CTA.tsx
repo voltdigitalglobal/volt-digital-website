@@ -3,6 +3,7 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import ctaGrad from "@/image/cta_main_gradient.png";
 
 export default function CTA() {
@@ -28,24 +29,26 @@ export default function CTA() {
           ))}
         </div>
 
-        <motion.button
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: false }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-          className="relative overflow-hidden flex items-center gap-3 px-8 py-3.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white text-xl font-medium shadow-[0_0_30px_rgba(255,255,255,0.05)] hover:bg-white/20 transition-all active:scale-95 group"
-        >
-          {/* Light sweep effect matching growth button */}
-          <div className="absolute top-0 left-[-100%] w-[60%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-[-20deg] pointer-events-none transition-none group-hover:animate-[flashPass_0.7s_ease-in-out_forwards]" />
-
-          <span className="relative z-10">Book Growth Audit</span>
-          <svg 
-            width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-            className="relative z-10 transition-transform duration-300 group-hover:translate-x-1"
+        <Link href="#contact">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: false }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="inline-flex cursor-pointer relative overflow-hidden items-center gap-3 px-8 py-3.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white text-xl font-medium shadow-[0_0_30px_rgba(255,255,255,0.05)] hover:bg-white/20 transition-all active:scale-95 group"
           >
-            <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </motion.button>
+            {/* Light sweep effect matching growth button */}
+            <div className="absolute top-0 left-[-100%] w-[60%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-[-20deg] pointer-events-none transition-none group-hover:animate-[flashPass_0.7s_ease-in-out_forwards]" />
+
+            <span className="relative z-10">Book Growth Audit</span>
+            <svg 
+              width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+              className="relative z-10 transition-transform duration-300 group-hover:translate-x-1"
+            >
+              <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </motion.div>
+        </Link>
       </div>
 
       <style jsx>{`

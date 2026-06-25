@@ -53,7 +53,7 @@ export default function Contact() {
   };
 
   return (
-    <section ref={ref} className="relative min-h-[80vh] w-full bg-[#010C19] pt-32 pb-12 px-6 flex flex-col items-center justify-center overflow-hidden">
+    <section id="contact" ref={ref} className="relative min-h-[80vh] w-full bg-[#010C19] pt-32 pb-12 px-6 flex flex-col items-center justify-center overflow-hidden">
       <div className="max-w-[1400px] mx-auto w-full grid grid-cols-1 lg:grid-cols-[1fr_900px] gap-20 items-center">
         
         {/* Left Side: Title */}
