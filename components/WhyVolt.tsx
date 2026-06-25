@@ -166,6 +166,30 @@ export default function WhyVolt() {
           </div>
         ))}
 
+        {/* Center Circle - Desktop only, exact convergence of all 4 lines */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none flex items-center justify-center">
+          <motion.div
+            initial={{ opacity: 0, rotate: 0 }}
+            animate={isInView
+              ? { opacity: 1, rotate: 720 }
+              : { opacity: 0, rotate: 0 }
+            }
+            transition={{
+              delay: 1.5,
+              duration: 0.9,
+              ease: "easeOut",
+            }}
+          >
+            <Image
+              src={roundLogo}
+              alt="VOLT Digital"
+              width={160}
+              height={160}
+              className="object-contain"
+            />
+          </motion.div>
+        </div>
+
       </div>
 
       {/* Mobile Layout */}
