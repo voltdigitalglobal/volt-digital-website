@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, useInView } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
-import { BookOpen } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
 
 import blog1 from "@/image/recent_news_card1_image.png";
 import blog2 from "@/image/recent_news_card2_image1.png";
@@ -134,14 +134,32 @@ export default function Blog() {
           ))}
         </div>
 
-        <div 
-          ref={scrollRef}
-          onMouseDown={onMouseDown}
-          onMouseLeave={onMouseLeave}
-          onMouseUp={onMouseUp}
-          onMouseMove={onMouseMove}
-          className={`relative w-full overflow-x-auto no-scrollbar pb-12 [mask-image:linear-gradient(to_right,transparent,white_10%,white_90%,transparent)] ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
-        >
+        <div className="relative w-full">
+          {/* Mobile Arrows */}
+          <button 
+            onClick={() => scrollRef.current?.scrollBy({ left: -320, behavior: 'smooth' })}
+            className="md:hidden absolute left-0 top-[40%] -translate-y-1/2 z-50 bg-[#0A121E] border border-white/10 text-white p-3 rounded-full shadow-[0_0_20px_rgba(16,113,255,0.2)] active:scale-95 transition-all"
+            aria-label="Scroll left"
+          >
+            <ChevronLeft className="w-6 h-6 text-[#1071FF]" />
+          </button>
+
+          <button 
+            onClick={() => scrollRef.current?.scrollBy({ left: 320, behavior: 'smooth' })}
+            className="md:hidden absolute right-0 top-[40%] -translate-y-1/2 z-50 bg-[#0A121E] border border-white/10 text-white p-3 rounded-full shadow-[0_0_20px_rgba(16,113,255,0.2)] active:scale-95 transition-all"
+            aria-label="Scroll right"
+          >
+            <ChevronRight className="w-6 h-6 text-[#1071FF]" />
+          </button>
+
+          <div 
+            ref={scrollRef}
+            onMouseDown={onMouseDown}
+            onMouseLeave={onMouseLeave}
+            onMouseUp={onMouseUp}
+            onMouseMove={onMouseMove}
+            className={`relative w-full overflow-x-auto no-scrollbar pb-12 [mask-image:linear-gradient(to_right,transparent,white_5%,white_95%,transparent)] ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+          >
           {/* Decorative Connecting Line */}
           <div className="absolute top-[35%] left-0 right-0 h-[1px] border-t border-dashed border-[#1071FF]/40 z-0 hidden lg:block" />
 
@@ -192,6 +210,7 @@ export default function Blog() {
                 </motion.div>
             ))}
           </div>
+        </div>
         </div>
       </div>
     </section>
