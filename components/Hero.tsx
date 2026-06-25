@@ -218,7 +218,7 @@ export default function Hero() {
 
       {/* ── Main Content ── */}
       <div className="flex-1 flex flex-col items-center justify-center text-center mt-[40px] md:mt-24 max-w-5xl mx-auto w-full z-10">
-        <h1 className="text-4xl md:text-6xl lg:text-7xl font-normal leading-[1.2] md:leading-[1.3] tracking-tight">
+        <h1 className="mt-[40px] md:mt-0 text-4xl md:text-6xl lg:text-7xl font-normal leading-[1.2] md:leading-[1.3] tracking-tight">
           <div className="overflow-hidden pb-[0.25em] -mb-[0.25em]"><div className="hero-line text-black">We create striking</div></div>
           <div className="overflow-hidden pb-[0.25em] -mb-[0.25em]"><div className="hero-line text-black">concepts and branding</div></div>
           <div className="overflow-hidden pb-[0.25em] -mb-[0.25em]"><div className="hero-line text-gray-400">that help your business</div></div>
